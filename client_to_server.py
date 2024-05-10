@@ -99,8 +99,9 @@ if __name__ == '__main__':
             #exit()
 
             for pcap_file in pcap_files:
-                print(full_pcap_path)
+                
                 full_pcap_path = os.path.join(pcap_dir, traffic_type, pcap_file)
+                print(full_pcap_path)
                 traffic_generator = TrafficGenerator(s_ip, d_ip, r_port, full_pcap_path, fragsize)
                 traffic_generator.start()
                 threads.append(traffic_generator)
