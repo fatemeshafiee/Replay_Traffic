@@ -30,6 +30,7 @@ class TrafficGenerator(Thread):
 
         last_timestamp = None
         for pkt in reader:
+            print(pkt[IP])
             if IP in pkt and pkt[IP].dport in allowed_ports:
             #if IP in pkt:
                 pkt_count += 1
