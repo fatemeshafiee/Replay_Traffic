@@ -81,6 +81,7 @@ if __name__ == '__main__':
 
             pcap_dir = "../ddos-data-sets-2022"
             pcap_files = os.listdir(os.path.join(pcap_dir, traffic_type))
+            print(pcap_files)
             if not pcap_files:
                 print(f"No pcap files found for traffic type '{traffic_type}'. Skipping...")
                 continue
@@ -98,6 +99,7 @@ if __name__ == '__main__':
             #exit()
 
             for pcap_file in pcap_files:
+                print(full_pcap_path)
                 full_pcap_path = os.path.join(pcap_dir, traffic_type, pcap_file)
                 traffic_generator = TrafficGenerator(s_ip, d_ip, r_port, full_pcap_path, fragsize)
                 traffic_generator.start()
