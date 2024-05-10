@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 s_ip, d_ip, r_port, traffic_type = parts
                 fragsize = 1500  # Default value
 
-            pcap_dir = "../"
+            ppcap_dir = "../ddos-data-sets-2022"
             pcap_files = os.listdir(os.path.join(pcap_dir, traffic_type))
             if not pcap_files:
                 print(f"No pcap files found for traffic type '{traffic_type}'. Skipping...")
