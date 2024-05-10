@@ -79,7 +79,7 @@ if __name__ == '__main__':
                 s_ip, d_ip, r_port, traffic_type = parts
                 fragsize = 1500  # Default value
 
-            pcap_dir = "../"
+            pcap_dir = "../ddos-data-sets-2022"
             pcap_files = os.listdir(os.path.join(pcap_dir, traffic_type))
             if not pcap_files:
                 print(f"No pcap files found for traffic type '{traffic_type}'. Skipping...")
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
             ##Collecting IP address from interface
             try:
-                ifname = "uesimtun0"
+                ifname = "gtp-gnb"
                 addr = ni.ifaddresses(ifname)
                 s_ip = addr[ni.AF_INET][0]['addr']
                 print(s_ip)
