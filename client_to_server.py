@@ -52,7 +52,7 @@ class TrafficGenerator(Thread):
 
                 fragments = fragment(new_pkt, fragsize=fragsize)
                 for frag in fragments:
-                    send(frag, verbose=False)
+                    sendp(frag, iface="gtp-gnb",verbose=False)
 
         print(f"Total packets sent: {pkt_count}")
 
