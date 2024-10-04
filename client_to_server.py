@@ -57,27 +57,26 @@ if __name__ == '__main__':
 
     sourceIP = sys.argv[1]
     destinationIP = sys.argv[2]
-    is_attack = sys.argv[3]
+    is_attack = int(sys.argv[3])
     threads = [] #added later
+    print(sourceIP,destinationIP, is_attack )
 
-    pcap_files = ""
-    try:
-        ifname = "eth1"
-        addr = ni.ifaddresses(ifname)
-        if is_attack == 1:
-            pcap_dir = "../ddos-data-sets-2022/benign_traffic"
-            pcap_files = os.listdir(os.path.join(pcap_dir))
-            if not pcap_files:
-                print(f"No pcap files found for traffic type. Skipping...")
+    
+    ifname = "eth1"
+    addr = ni.ifaddresses(ifname)
+    if is_attack == 1:
+        pcap_dir = "../ddos-data-sets-2022/benign_traffic"
+        pcap_files = os.listdir(os.path.join(pcap_dir))
+        if not pcap_files:
+            print(f"No pcap files found for traffic type. Skipping...")
+            
+    else: 
+        pcap_dir = "../ddos-data-sets-2022/attack_traffic/tcpsyn"
+        pcap_files = os.listdir(os.path.join(pcap_dir))
+        if not pcap_files:
+            print(f"No pcap files found for traffic type. Skipping...")
                 
-        else: 
-            pcap_dir = "ddos-data-sets-2022/attack_traffic"
-            pcap_files = os.listdir(os.path.join(pcap_dir))
-            if not pcap_files:
-                print(f"No pcap files found for traffic type. Skipping...")
-                
-    except:
-        pass
+
     #exit()
     print("before the for")
     for pcap_file in pcap_files:
