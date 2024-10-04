@@ -40,12 +40,14 @@ class Replay_Traffic(Thread):
 
                 if last_timestamp is not None: 
                     delay = float(pkt.time) - float(last_timestamp)
+                    if delay < 0:
+                        delay *= -1
                     time.sleep(delay)
                 last_timestamp = pkt.time
 
                 fragments = fragment(new_pkt, fragsize=1500)
                 for frag in fragments:
-                    sendp(frag, iface="eth1",verbose=False)
+                    sendp(frag, iface="gtp-gnb",verbose=False)
                     print("sent a packet")
 
         print(f"Total packets sent: {pkt_count}")
