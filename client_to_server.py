@@ -71,7 +71,7 @@ if __name__ == '__main__':
                 print(f"No pcap files found for traffic type. Skipping...")
                 
         else: 
-            pcap_dir = "ddos-data-sets-2022/attack_traffic"
+            pcap_dir = "ddos-data-sets-2022/attack_traffic/tcpsyn"
             pcap_files = os.listdir(os.path.join(pcap_dir))
             if not pcap_files:
                 print(f"No pcap files found for traffic type. Skipping...")
