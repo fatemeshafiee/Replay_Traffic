@@ -1,3 +1,4 @@
+
 from scapy.all import *
 from threading import Thread
 import sys
@@ -7,38 +8,29 @@ import time
 import netifaces as ni
 
 
-class TrafficGenerator(Thread):
-    def __init__(self, s_ip, d_ip, r_port, pcap_file, fragsize):
+class Replay_Traffic(Thread):
+    def __init__(self,sourceIP, destinationIP, oldSource, pcap_file):
         Thread.__init__(self)
-        self.s_ip = s_ip
-        self.d_ip = d_ip
-        self.r_port = r_port
+        self.sourceIP = sourceIP
+        self.destinationIP = destinationIP
+        self.oldSource = oldSource
+        # self.sourcePort = sourcePort
+        # self.destinationPort = destinationPort
         self.pcap_file = pcap_file
-        self.fragsize = fragsize
+    def send_packet(self,sourceIP, destinationIP, oldSource, pcap_file):
 
-    def run(self):
-        start_time = time.time()
-        self.send_packet(self.s_ip, self.d_ip, self.r_port, self.pcap_file, self.fragsize)
-        end_time = time.time()
-        print(f"Execution time for {self.pcap_file}: {end_time - start_time} seconds")
-
-
-    def send_packet(self, s_ip, d_ip, r_port, pcap_file, fragsize):
-        pkt_count = 0
         reader = PcapReader(pcap_file)
-        allowed_ports = [443, 80, 8080, 22, 20, 53, 67, 25]
+        pkt_count = 0
 
         last_timestamp = None
         for pkt in reader:
-            print(pkt[IP])
-            if IP in pkt and pkt[IP].dport in allowed_ports:
-            #if IP in pkt:
-                pkt_count += 1
+            pkt_count += 1
+            if IP in pkt and new_pkt[IP].src == oldSource:
                 new_pkt = pkt.copy()
-                new_pkt[IP].dst = d_ip
-                new_pkt[IP].src = s_ip
-                #new_pkt[IP].sport = int(r_port)
-                #new_pkt[IP].dport = int(r_port)
+                new_pkt[IP].dst = destinationIP
+                new_pkt[IP].src = sourceIP
+                # new_pkt[IP].sport = int(sourcePort)
+                # new_pkt[IP].dport = int(destinationPort)
                 del new_pkt[IP].chksum
                 if TCP in new_pkt:
                     del new_pkt[TCP].chksum
@@ -50,12 +42,11 @@ class TrafficGenerator(Thread):
                     time.sleep(delay)
                 last_timestamp = pkt.time
 
-                fragments = fragment(new_pkt, fragsize=fragsize)
+                fragments = fragment(new_pkt, fragsize=1500)
                 for frag in fragments:
-                    sendp(frag, iface="gtp-gnb",verbose=False)
+                    sendp(frag, iface="eth1",verbose=False)
 
         print(f"Total packets sent: {pkt_count}")
-
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
@@ -72,28 +63,28 @@ if __name__ == '__main__':
                 continue
 
             parts = line.split()
-            # Unpack the parts with an optional fragsize
-            if len(parts) == 5:
-                s_ip, d_ip, r_port, traffic_type, fragsize_str = parts
-                fragsize = int(fragsize_str)
-            else:
-                s_ip, d_ip, r_port, traffic_type = parts
-                fragsize = 1500  # Default value
+            if len(parts) == 3:
+                sourceIP, destinationIP, oldSource = parts
 
-            pcap_dir = "../ddos-data-sets-2022"
-            pcap_files = os.listdir(os.path.join(pcap_dir, traffic_type))
-            print(pcap_files)
-            if not pcap_files:
-                print(f"No pcap files found for traffic type '{traffic_type}'. Skipping...")
-                continue
-
-
-            ##Collecting IP address from interface
             try:
                 ifname = "gtp-gnb"
                 addr = ni.ifaddresses(ifname)
-                s_ip = addr[ni.AF_INET][0]['addr']
-                print(s_ip)
+                sourceIP = "12.1.1.2"
+                print(sourceIP)
+                if sourceIP in ["12.1.1.2", "12.1.1.3", "12.1.1.4"]:
+                    pcap_dir = "../ddos-data-sets-2022/benign_traffic"
+                    pcap_files = os.listdir(os.path.join(pcap_dir))
+                    if not pcap_files:
+                        print(f"No pcap files found for traffic type. Skipping...")
+                        continue
+                else: 
+                    pcap_dir = "../malicious"
+                    pcap_files = os.listdir(os.path.join(pcap_dir))
+                    if not pcap_files:
+                        print(f"No pcap files found for traffic type. Skipping...")
+                        continue
+
+
 
             except:
                 pass
@@ -101,10 +92,10 @@ if __name__ == '__main__':
 
             for pcap_file in pcap_files:
                 
-                full_pcap_path = os.path.join(pcap_dir, traffic_type, pcap_file)
+                full_pcap_path = os.path.join(pcap_dir, pcap_file)
                 print(full_pcap_path)
-                traffic_generator = TrafficGenerator(s_ip, d_ip, r_port, full_pcap_path, fragsize)
-                traffic_generator.start()
+                traffic_generator = Replay_Traffic(sourceIP, destinationIP,oldSource,full_pcap_path)
+                traffic_generator.send_packet()
                 threads.append(traffic_generator)
 
     # Wait for all threads to complete
@@ -112,11 +103,3 @@ if __name__ == '__main__':
         thread.join()
 
     print("All traffic has been processed.")
-
-            # ##### Uncomment this part to select random pcap file ######
-            # pcap_file = random.choice(pcap_files)  #here is randomly selects any of the pcap from the selected directory
-            # full_pcap_path = os.path.join(pcap_dir, traffic_type, pcap_file)
-            #
-            # traffic_generator = TrafficGenerator(s_ip, d_ip, r_port, full_pcap_path, fragsize)
-            # traffic_generator.start()
-            # traffic_generator.join()
