@@ -60,7 +60,7 @@ if __name__ == '__main__':
     is_attack = sys.argv[3]
     threads = [] #added later
 
-
+    pcap_files = ""
     try:
         ifname = "eth1"
         addr = ni.ifaddresses(ifname)
@@ -71,7 +71,7 @@ if __name__ == '__main__':
                 print(f"No pcap files found for traffic type. Skipping...")
                 
         else: 
-            pcap_dir = "ddos-data-sets-2022/attack_traffic/tcpsyn"
+            pcap_dir = "ddos-data-sets-2022/attack_traffic"
             pcap_files = os.listdir(os.path.join(pcap_dir))
             if not pcap_files:
                 print(f"No pcap files found for traffic type. Skipping...")
